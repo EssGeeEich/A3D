@@ -14,6 +14,14 @@ Material* Material::standardMaterial(StandardMaterial stdMat) {
 
 	Material& newMat = standardMaterials[stdMat];
 	switch(stdMat) {
+	case UnshadedMaterial:
+		newMat.setShaderFile(GLSL, VertexShader, ":/A3D/UnshadedMaterial.vert");
+		newMat.setShaderFile(GLSL, FragmentShader, ":/A3D/UnshadedMaterial.frag");
+		break;
+	case BillboardMaterial:
+		newMat.setShaderFile(GLSL, VertexShader, ":/A3D/BillboardMaterial.vert");
+		newMat.setShaderFile(GLSL, FragmentShader, ":/A3D/BillboardMaterial.frag");
+		break;
 	case PBRMaterial:
 		newMat.setShaderFile(GLSL, VertexShader, ":/A3D/PBRMaterial.vert");
 		newMat.setShaderFile(GLSL, FragmentShader, ":/A3D/PBRMaterial.frag");

@@ -10,5 +10,9 @@
         <file>A3D/PrefilterMaterial.vert</file>
         <file>A3D/BRDFMaterial.frag</file>
         <file>A3D/BRDFMaterial.vert</file>
+        <file>A3D/BillboardMaterial.vert</file>
+        <file>A3D/BillboardMaterial.frag</file>
+        <file>A3D/UnshadedMaterial.frag</file>
+        <file>A3D/UnshadedMaterial.vert</file>
     </qresource>
 </RCC>

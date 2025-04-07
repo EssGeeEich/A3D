@@ -13,6 +13,7 @@ SOURCES += \
     $$PWD/A3D/entitycontroller.cpp \
     $$PWD/A3D/keyboardcameracontroller.cpp \
     $$PWD/A3D/scenecontroller.cpp \
+    $$PWD/A3D/textbillboardmodel.cpp \
     $$PWD/A3D/viewcontroller.cpp \
     A3D/camera.cpp \
     A3D/common.cpp \
@@ -47,6 +48,7 @@ HEADERS += \
 	$$PWD/A3D/entitycontroller.h \
 	$$PWD/A3D/keyboardcameracontroller.h \
 	$$PWD/A3D/scenecontroller.h \
+	$$PWD/A3D/textbillboardmodel.h \
 	$$PWD/A3D/viewcontroller.h \
 	$$PWD/Dependencies/stb/stb_image_write.h \
 	A3D/camera.h \

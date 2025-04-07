@@ -24,6 +24,7 @@
 #include <vector>
 #include <list>
 #include <chrono>
+#include <stdexcept>
 
 namespace A3D {
 

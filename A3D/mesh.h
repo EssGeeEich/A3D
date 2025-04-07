@@ -8,6 +8,7 @@
 #include <cstdint>
 #include "A3D/meshcache.h"
 #include "A3D/resource.h"
+#include <stdexcept>
 
 namespace A3D {
 
