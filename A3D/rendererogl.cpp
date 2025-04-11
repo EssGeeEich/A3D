@@ -7,6 +7,10 @@ RendererOGL::RendererOGL(QOpenGLContext* ctx, CoreGLFunctions* gl)
 	: Renderer(),
 	  m_context(ctx),
 	  m_gl(gl),
+	  m_oitFBO(0),
+	  m_oitAccumTexture(0),
+	  m_oitRevealageTexture(0),
+	  m_oitDepthRBO(0),
 	  m_lineMaterial(nullptr),
 	  m_skyboxMaterial(nullptr),
 	  m_skyboxMesh(nullptr),
@@ -233,12 +237,61 @@ void RendererOGL::BeginDrawing(Camera const& cam, Scene const* scene) {
 
 	genBrdfLUT();
 
-	m_gl->glDisable(GL_BLEND);
-	m_gl->glEnable(GL_MULTISAMPLE);
-	m_gl->glEnable(GL_CULL_FACE);
-	m_gl->glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+	pushState(false);
+
+	if(!m_oitFBO) {
+		auto glErrorCheck = checkGlErrors("RendererOGL Framebuffer Creation");
+		Q_UNUSED(glErrorCheck)
+
+		m_gl->glGenFramebuffers(1, &m_oitFBO);
+		m_gl->glBindFramebuffer(GL_FRAMEBUFFER, m_oitFBO);
+
+		m_gl->glGenTextures(1, &m_oitAccumTexture);
+		m_gl->glBindTexture(GL_TEXTURE_2D, m_oitAccumTexture);
+		m_gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, 1024, 768, 0, GL_RGBA, GL_FLOAT, nullptr);
+		m_gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		m_gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		m_gl->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_oitAccumTexture, 0);
+
+		m_gl->glGenTextures(1, &m_oitRevealageTexture);
+		m_gl->glBindTexture(GL_TEXTURE_2D, m_oitRevealageTexture);
+		m_gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, 1024, 768, 0, GL_RGBA, GL_FLOAT, nullptr);
+		m_gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		m_gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		m_gl->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, m_oitRevealageTexture, 0);
+
+		GLuint attachments[2] = {
+			GL_COLOR_ATTACHMENT0,
+			GL_COLOR_ATTACHMENT1,
+		};
+		m_gl->glDrawBuffers(2, attachments);
+
+		m_gl->glGenRenderbuffers(1, &m_oitDepthRBO);
+		m_gl->glBindRenderbuffer(GL_RENDERBUFFER, m_oitDepthRBO);
+		m_gl->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 1024, 768);
+		m_gl->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_oitDepthRBO);
+
+		if(m_gl->glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+			log(LC_Critical, "OpenGL FBO is incomplete!");
+		}
+		m_gl->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+	else {
+		auto glErrorCheck = checkGlErrors("RendererOGL Framebuffer Binding");
+		Q_UNUSED(glErrorCheck)
+
+		m_gl->glBindFramebuffer(GL_FRAMEBUFFER, m_oitFBO);
+	}
+	popState();
+
+	GLfloat clearColor[4] = { 0, 0, 0, 0 };
+	m_gl->glClearBufferfv(GL_COLOR, 0, clearColor);
+	m_gl->glClearBufferfv(GL_COLOR, 1, clearColor);
 	m_gl->glClearColor(0.f, 0.f, 0.f, 0.f);
 	m_gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//m_gl->glClear(GL_DEPTH_BUFFER_BIT);
+
+	//m_gl->glEnable(GL_MULTISAMPLE);
 
 	m_skyboxView = cam.getView();
 	m_skyboxProj = cam.getProjection();
@@ -273,6 +326,32 @@ void RendererOGL::BeginDrawing(Camera const& cam, Scene const* scene) {
 }
 
 void RendererOGL::EndDrawing(Scene const* scene) {
+	//popState();
+
+	auto glErrorCheck = checkGlErrors("RendererOGL::EndDrawing");
+	Q_UNUSED(glErrorCheck)
+
+	m_gl->glClearColor(1, 100, 0, 0);
+	m_gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	Mesh* oitMesh    = Mesh::standardMesh(Mesh::ScreenQuadMesh);
+	Material* oitMat = Material::standardMaterial(Material::OITMaterial);
+
+	MeshCacheOGL* meshCache    = buildMeshCache(oitMesh);
+	MaterialCacheOGL* matCache = buildMaterialCache(oitMat);
+
+	m_gl->glActiveTexture(GL_TEXTURE0);
+	m_gl->glBindTexture(GL_TEXTURE_2D, m_oitAccumTexture);
+
+	m_gl->glActiveTexture(GL_TEXTURE1);
+	m_gl->glBindTexture(GL_TEXTURE_2D, m_oitRevealageTexture);
+
+	matCache->applyUniform(this, "uAccumColor", 0);
+	matCache->applyUniform(this, "uRevealage", 1);
+	matCache->install(this, m_gl);
+
+	meshCache->render(m_gl, QMatrix4x4(), QMatrix4x4(), QMatrix4x4());
+
 	Renderer::EndDrawing(scene);
 }
 
@@ -287,6 +366,9 @@ std::shared_ptr<RendererOGL::DeferredCaller> RendererOGL::checkGlErrors(QString 
 
 void RendererOGL::BeginOpaque() {
 
+	m_gl->glDisable(GL_BLEND);
+	m_gl->glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
 	if(currentScene() && currentScene()->skybox()) {
 		Cubemap* c = currentScene()->skybox();
 
@@ -300,30 +382,27 @@ void RendererOGL::BeginOpaque() {
 		MaterialCacheOGL* matCache = buildMaterialCache(m_skyboxMaterial);
 		CubemapCacheOGL* ccCache   = buildCubemapCache(c);
 
+		m_gl->glDisable(GL_DEPTH_TEST);
 		m_gl->glDepthMask(GL_FALSE);
 		m_gl->glDisable(GL_CULL_FACE);
 		matCache->install(this, m_gl);
 		ccCache->applyToSlot(this, m_gl, static_cast<GLuint>(MaterialProperties::EnvironmentTextureSlot), -1, -1);
 		meshCache->render(this, m_gl, QMatrix4x4(), m_skyboxView, m_skyboxProj);
-		m_gl->glEnable(GL_CULL_FACE);
-		m_gl->glDepthMask(GL_TRUE);
 
 		ccCache->applyToSlot(this, m_gl, -1, static_cast<GLuint>(MaterialProperties::EnvironmentTextureSlot), static_cast<GLuint>(MaterialProperties::PrefilterTextureSlot));
 	}
 
 	m_gl->glEnable(GL_DEPTH_TEST);
-	m_gl->glDepthFunc(GL_LESS);
+	m_gl->glDepthMask(GL_TRUE);
+	m_gl->glEnable(GL_CULL_FACE);
 }
 void RendererOGL::EndOpaque() {}
 
 void RendererOGL::BeginTranslucent() {
-	m_gl->glDepthMask(GL_FALSE);
 	m_gl->glEnable(GL_BLEND);
-	m_gl->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	m_gl->glBlendFunc(GL_ONE, GL_ONE);
 }
 void RendererOGL::EndTranslucent() {
-	m_gl->glDepthMask(GL_TRUE);
-	m_gl->glDisable(GL_BLEND);
 }
 
 class ContextSwitcher : public NonCopyable {
@@ -440,6 +519,11 @@ void RendererOGL::DeleteAllResources() {
 	if(m_brdfLUT) {
 		m_gl->glDeleteTextures(1, &m_brdfLUT);
 		m_brdfLUT = 0;
+	}
+
+	if(m_oitFBO) {
+		m_gl->glDeleteFramebuffers(1, &m_oitFBO);
+		m_oitFBO = 0;
 	}
 
 	m_brdfCalculated = false;
