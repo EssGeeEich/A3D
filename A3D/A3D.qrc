@@ -17,5 +17,7 @@
         <file>A3D/LineMaterial.geom</file>
         <file>A3D/LineMaterial.frag</file>
         <file>A3D/LineMaterial.vert</file>
+        <file>A3D/OITMaterial.frag</file>
+        <file>A3D/OITMaterial.vert</file>
     </qresource>
 </RCC>

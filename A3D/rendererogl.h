@@ -116,6 +116,12 @@ private:
 	std::vector<Entity*> m_translucentEntityBuffer;
 	std::vector<std::pair<std::size_t, PointLightInfo>> m_closestSceneLightsBuffer;
 
+	// OIT Data
+	GLuint m_oitFBO;
+	GLuint m_oitAccumTexture;
+	GLuint m_oitRevealageTexture;
+	GLuint m_oitDepthRBO;
+
 	// Line data
 	A3D::Material* m_lineMaterial;
 
