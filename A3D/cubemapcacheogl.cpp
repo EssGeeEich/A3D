@@ -11,10 +11,10 @@ CubemapCacheOGL::CubemapCacheOGL(Cubemap* parent)
 	  m_cubemap(0),
 	  m_cubemapIrradiance(0),
 	  m_cubemapPrefilter(0) {
-	log(LC_Debug, "Constructor: CubemapCacheOGL");
+	log(LC_Debug, u"Constructor: CubemapCacheOGL");
 }
 CubemapCacheOGL::~CubemapCacheOGL() {
-	log(LC_Debug, "Destructor: CubemapCacheOGL");
+	log(LC_Debug, u"Destructor: CubemapCacheOGL");
 
 	if(m_cubemap) {
 		QOpenGLContext::currentContext()->functions()->glDeleteTextures(1, &m_cubemap);
@@ -37,25 +37,7 @@ void CubemapCacheOGL::update(RendererOGL* r, CoreGLFunctions* gl) {
 	Q_UNUSED(glErrorCheck)
 
 	Cubemap* c = cubemap();
-	if(!c)
-		return;
-
-	if(c->nx().isNull() || c->ny().isNull() || c->nz().isNull() || c->px().isNull() || c->py().isNull() || c->pz().isNull())
-		return;
-
-	QSize s = c->nx().size();
-	if(s.width() != s.height())
-		return;
-
-	if(s != c->ny().size() || s != c->nz().size() || s != c->px().size() || s != c->py().size() || s != c->pz().size())
-		return;
-
-	bool isqimage = c->nx().isQImage();
-	if(isqimage != c->ny().isQImage() || isqimage != c->nz().isQImage() || isqimage != c->px().isQImage() || isqimage != c->py().isQImage() || isqimage != c->pz().isQImage())
-		return;
-
-	bool ishdr = c->nx().isHDR();
-	if(ishdr != c->ny().isHDR() || ishdr != c->nz().isHDR() || ishdr != c->px().isHDR() || ishdr != c->py().isHDR() || ishdr != c->pz().isHDR())
+	if(!c || !c->isValid())
 		return;
 
 	if(!m_cubemap)
@@ -111,12 +93,12 @@ void CubemapCacheOGL::update(RendererOGL* r, CoreGLFunctions* gl) {
 		}
 	};
 
-	setCubemapFace(c->nx(), QOpenGLTexture::CubeMapNegativeX);
-	setCubemapFace(c->ny(), QOpenGLTexture::CubeMapNegativeY);
-	setCubemapFace(c->nz(), QOpenGLTexture::CubeMapNegativeZ);
-	setCubemapFace(c->px(), QOpenGLTexture::CubeMapPositiveX);
-	setCubemapFace(c->py(), QOpenGLTexture::CubeMapPositiveY);
-	setCubemapFace(c->pz(), QOpenGLTexture::CubeMapPositiveZ);
+	setCubemapFace(c->cubemapFace(Cubemap::CF_NEG_X), QOpenGLTexture::CubeMapNegativeX);
+	setCubemapFace(c->cubemapFace(Cubemap::CF_NEG_Y), QOpenGLTexture::CubeMapNegativeY);
+	setCubemapFace(c->cubemapFace(Cubemap::CF_NEG_Z), QOpenGLTexture::CubeMapNegativeZ);
+	setCubemapFace(c->cubemapFace(Cubemap::CF_POS_X), QOpenGLTexture::CubeMapPositiveX);
+	setCubemapFace(c->cubemapFace(Cubemap::CF_POS_Y), QOpenGLTexture::CubeMapPositiveY);
+	setCubemapFace(c->cubemapFace(Cubemap::CF_POS_Z), QOpenGLTexture::CubeMapPositiveZ);
 
 	// Post-processing
 
@@ -193,8 +175,8 @@ void CubemapCacheOGL::calcPrefilter(GLenum format, RendererOGL* r, CoreGLFunctio
 	float resolution = 512.f;
 
 	Cubemap* c = cubemap();
-	if(c)
-		resolution = c->nx().size().width();
+	if(c && c->isValid())
+		resolution = c->cubemapFace(Cubemap::CF_NEG_X).size().width();
 
 	matCache->applyUniform(r, "CubemapResolution", resolution);
 

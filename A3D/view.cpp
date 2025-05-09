@@ -10,7 +10,7 @@ View::View(QWidget* parent)
 	  m_initDoneGL(false),
 	  m_renderer(nullptr),
 	  m_scene(nullptr) {
-	log(LC_Debug, "Constructor: View");
+	log(LC_Debug, u"Constructor: View");
 	setMouseTracking(true);
 	setFocusPolicy(Qt::StrongFocus);
 	setAttribute(Qt::WA_AlwaysStackOnTop);
@@ -28,7 +28,7 @@ View::View(QWidget* parent)
 }
 
 View::~View() {
-	log(LC_Debug, "Destructor: View");
+	log(LC_Debug, u"Destructor: View");
 }
 
 Camera& View::camera() {
@@ -73,26 +73,18 @@ void View::setController(ViewController* viewController) {
 		installEventFilter(m_viewController);
 }
 
-float View::runTimeMultiplier() const {
-	return m_runTimeMultiplier;
+bool View::isAutoRefreshEnabled() const {
+	return m_refreshTimer.isValid();
 }
 
-void View::setRunTimeMultiplier(float rtm) {
-	m_runTimeMultiplier = rtm;
-}
-
-bool View::isRunning() const {
-	return m_viewRunTimer.isValid();
-}
-
-void View::setRunning(bool running) {
-	if(m_viewRunTimer.isValid() == running)
+void View::setAutoRefreshEnabled(bool enabled) {
+	if(m_refreshTimer.isValid() == enabled)
 		return;
 
-	if(running)
-		m_viewRunTimer.restart();
+	if(enabled)
+		m_refreshTimer.restart();
 	else
-		m_viewRunTimer.invalidate();
+		m_refreshTimer.invalidate();
 }
 
 QSize View::minimumSizeHint() const {
@@ -108,8 +100,8 @@ void View::initializeGL() {
 		return;
 
 	if(!initializeOpenGLFunctions()) {
-		log(LC_Debug, "initializeOpenGLFunctions failed.");
-		log(LC_Fatal, "OpenGL 3.3 Core is required to run this software.");
+		log(LC_Debug, u"initializeOpenGLFunctions failed.");
+		log(LC_Fatal, u"OpenGL 3.3 Core is required to run this software.");
 		return;
 	}
 
@@ -148,14 +140,11 @@ void View::paintGL() {
 }
 
 void View::updateView() {
-	if(!m_viewController || !m_viewRunTimer.isValid() || m_viewRunTimer.elapsed() <= 0)
-		return;
-
-	std::chrono::milliseconds t = std::chrono::milliseconds(m_viewRunTimer.restart());
+	std::chrono::milliseconds t = std::chrono::milliseconds(m_refreshTimer.restart());
 	bool hasChanges             = m_viewController->update(t);
+	Q_UNUSED(hasChanges)
 
-	if(hasChanges)
-		update(); // Redraw
+	this->update(); // Redraw
 }
 
 QPointF View::toNormalizedPoint(QPointF viewLocalCoordinate) const {

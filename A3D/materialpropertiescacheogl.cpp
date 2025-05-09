@@ -8,10 +8,10 @@ namespace A3D {
 MaterialPropertiesCacheOGL::MaterialPropertiesCacheOGL(MaterialProperties* parent)
 	: MaterialPropertiesCache{ parent },
 	  m_materialUBO(0) {
-	log(LC_Debug, "Constructor: MaterialPropertiesCacheOGL");
+	log(LC_Debug, u"Constructor: MaterialPropertiesCacheOGL");
 }
 MaterialPropertiesCacheOGL::~MaterialPropertiesCacheOGL() {
-	log(LC_Debug, "Destructor: MaterialPropertiesCacheOGL");
+	log(LC_Debug, u"Destructor: MaterialPropertiesCacheOGL");
 
 	if(m_materialUBO) {
 		QOpenGLContext::currentContext()->functions()->glDeleteBuffers(1, &m_materialUBO);

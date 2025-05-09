@@ -82,7 +82,7 @@ Texture* Texture::standardTexture(StandardTexture stdTex) {
 
 Texture::Texture(ResourceManager* resourceManager)
 	: Texture(QImage(), resourceManager) {
-	log(LC_Debug, "Constructor: Texture");
+	log(LC_Debug, u"Constructor: Texture");
 }
 
 Texture::Texture(Image image, ResourceManager* resourceManager)
@@ -93,24 +93,24 @@ Texture::Texture(Image image, ResourceManager* resourceManager)
 	  m_lodBias(-1.f),
 	  m_maxAnisotropy(8.f),
 	  m_renderOptions(GenerateMipMaps) {
-	log(LC_Debug, "Constructor: Texture");
+	log(LC_Debug, u"Constructor: Texture");
 }
 
 Texture::~Texture() {
-	log(LC_Debug, "Destructor: Texture (start)");
+	log(LC_Debug, u"Destructor: Texture (start)");
 	for(auto it = m_textureCache.begin(); it != m_textureCache.end(); ++it) {
 		if(it->second.isNull())
 			continue;
 
 		Renderer* r = Renderer::getRenderer(it->first);
 		if(!r) {
-			log(LC_Info, "Texture::~Texture: Potential memory leak? Renderer not available.");
+			log(LC_Info, u"Texture::~Texture: Potential memory leak? Renderer not available.");
 			continue;
 		}
 
 		r->Delete(it->second);
 	}
-	log(LC_Debug, "Destructor: Texture (end)");
+	log(LC_Debug, u"Destructor: Texture (end)");
 }
 
 Texture* Texture::clone() const {

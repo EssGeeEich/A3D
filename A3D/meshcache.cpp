@@ -7,10 +7,10 @@ MeshCache::MeshCache(Mesh* parent)
 	: QObject{ parent },
 	  m_mesh(parent),
 	  m_isDirty(true) {
-	log(LC_Debug, "Constructor: MeshCache");
+	log(LC_Debug, u"Constructor: MeshCache");
 }
 MeshCache::~MeshCache() {
-	log(LC_Debug, "Destructor: MeshCache");
+	log(LC_Debug, u"Destructor: MeshCache");
 }
 
 Mesh* MeshCache::mesh() const {

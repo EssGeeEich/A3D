@@ -13,14 +13,14 @@ MaterialCacheOGL::MaterialCacheOGL(Material* parent)
 	  m_matpropUBO_index(GL_INVALID_INDEX),
 	  m_sceneUBO_index(GL_INVALID_INDEX),
 	  m_lineUBO_index(GL_INVALID_INDEX) {
-	log(LC_Debug, "Constructor: MaterialCacheOGL");
+	log(LC_Debug, u"Constructor: MaterialCacheOGL");
 }
 
 MaterialCacheOGL::~MaterialCacheOGL() {
-	log(LC_Debug, "Destructor: MaterialCacheOGL");
+	log(LC_Debug, u"Destructor: MaterialCacheOGL");
 }
 
-void MaterialCacheOGL::applyUniform(RendererOGL* r, QString const& name, QVariant const& value) {
+void MaterialCacheOGL::applyUniform(RendererOGL* r, CoreGLFunctions*, QString const& name, QVariant const& value) {
 	auto glErrorCheck = r->checkGlErrors("MaterialCacheOGL::applyUniform");
 	Q_UNUSED(glErrorCheck)
 
@@ -82,7 +82,7 @@ void MaterialCacheOGL::applyUniform(RendererOGL* r, QString const& name, QVarian
 	}
 }
 
-void MaterialCacheOGL::applyUniforms(RendererOGL* r, std::map<QString, QVariant> const& uniforms) {
+void MaterialCacheOGL::applyUniforms(RendererOGL* r, CoreGLFunctions* gl, std::map<QString, QVariant> const& uniforms) {
 	auto glErrorCheck = r->checkGlErrors("MaterialCacheOGL::applyUniforms");
 	Q_UNUSED(glErrorCheck)
 
@@ -90,7 +90,7 @@ void MaterialCacheOGL::applyUniforms(RendererOGL* r, std::map<QString, QVariant>
 		return;
 
 	for(auto it = uniforms.begin(); it != uniforms.end(); ++it) {
-		applyUniform(r, it->first, it->second);
+		applyUniform(r, gl, it->first, it->second);
 	}
 }
 
@@ -150,7 +150,7 @@ void MaterialCacheOGL::update(RendererOGL* r, CoreGLFunctions* gl) {
 	m_program->addShaderFromSourceCode(QOpenGLShader::Fragment, fxShader);
 
 	if(!m_program->link()) {
-		log(LC_Warning, "Couldn't link QOpenGLShader: " + m_program->log());
+		log(LC_Warning, QStringLiteral(u"Couldn't link QOpenGLShader: %1").arg(m_program->log()));
 		m_program.reset();
 		return;
 	}
@@ -159,26 +159,26 @@ void MaterialCacheOGL::update(RendererOGL* r, CoreGLFunctions* gl) {
 	m_program->bind();
 
 	for(GLuint i = 0; i < MaterialProperties::MaxTextures; ++i) {
-		applyUniform(r, QString("TextureSlot") + QString::number(i), GLuint(i));
+		applyUniform(r, gl, QString("TextureSlot") + QString::number(i), GLuint(i));
 	}
 
 	// PBR mode
-	applyUniform(r, "AlbedoTexture", GLuint(MaterialProperties::AlbedoTextureSlot));
-	applyUniform(r, "NormalTexture", GLuint(MaterialProperties::NormalTextureSlot));
-	applyUniform(r, "MetallicTexture", GLuint(MaterialProperties::MetallicTextureSlot));
-	applyUniform(r, "RoughnessTexture", GLuint(MaterialProperties::RoughnessTextureSlot));
-	applyUniform(r, "AOTexture", GLuint(MaterialProperties::AOTextureSlot));
+	applyUniform(r, gl, "AlbedoTexture", GLuint(MaterialProperties::AlbedoTextureSlot));
+	applyUniform(r, gl, "NormalTexture", GLuint(MaterialProperties::NormalTextureSlot));
+	applyUniform(r, gl, "MetallicTexture", GLuint(MaterialProperties::MetallicTextureSlot));
+	applyUniform(r, gl, "RoughnessTexture", GLuint(MaterialProperties::RoughnessTextureSlot));
+	applyUniform(r, gl, "AOTexture", GLuint(MaterialProperties::AOTextureSlot));
 
 	// Phong mode
-	applyUniform(r, "DiffuseTexture", GLuint(MaterialProperties::AlbedoTextureSlot));
-	applyUniform(r, "EmissiveTexture", GLuint(MaterialProperties::MetallicTextureSlot));
-	applyUniform(r, "BumpMapTexture", GLuint(MaterialProperties::NormalTextureSlot));
+	applyUniform(r, gl, "DiffuseTexture", GLuint(MaterialProperties::AlbedoTextureSlot));
+	applyUniform(r, gl, "EmissiveTexture", GLuint(MaterialProperties::MetallicTextureSlot));
+	applyUniform(r, gl, "BumpMapTexture", GLuint(MaterialProperties::NormalTextureSlot));
 
-	applyUniform(r, "EnvironmentMapTexture", GLuint(MaterialProperties::EnvironmentTextureSlot));
-	applyUniform(r, "CubeMapTexture", GLuint(MaterialProperties::EnvironmentTextureSlot));
-	applyUniform(r, "IrradianceTexture", GLuint(MaterialProperties::EnvironmentTextureSlot));
-	applyUniform(r, "PrefilterTexture", GLuint(MaterialProperties::PrefilterTextureSlot));
-	applyUniform(r, "BrdfTexture", GLuint(MaterialProperties::BrdfTextureSlot));
+	applyUniform(r, gl, "EnvironmentMapTexture", GLuint(MaterialProperties::EnvironmentTextureSlot));
+	applyUniform(r, gl, "CubeMapTexture", GLuint(MaterialProperties::EnvironmentTextureSlot));
+	applyUniform(r, gl, "IrradianceTexture", GLuint(MaterialProperties::EnvironmentTextureSlot));
+	applyUniform(r, gl, "PrefilterTexture", GLuint(MaterialProperties::PrefilterTextureSlot));
+	applyUniform(r, gl, "BrdfTexture", GLuint(MaterialProperties::BrdfTextureSlot));
 
 	m_meshUBO_index    = gl->glGetUniformBlockIndex(m_program->programId(), "MeshUBO_Data");
 	m_matpropUBO_index = gl->glGetUniformBlockIndex(m_program->programId(), "MaterialUBO_Data");

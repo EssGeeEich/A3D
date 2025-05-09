@@ -7,10 +7,10 @@ TextureCache::TextureCache(Texture* parent)
 	: QObject{ parent },
 	  m_texture(parent),
 	  m_isDirty(true) {
-	log(LC_Debug, "Constructor: TextureCache");
+	log(LC_Debug, u"Constructor: TextureCache");
 }
 TextureCache::~TextureCache() {
-	log(LC_Debug, "Destructor: TextureCache");
+	log(LC_Debug, u"Destructor: TextureCache");
 }
 
 Texture* TextureCache::texture() const {

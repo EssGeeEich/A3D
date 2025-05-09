@@ -9,11 +9,11 @@ Entity::Entity(Entity* parent)
 	  m_renderOptions(NoOptions),
 	  m_matrixDirty(true),
 	  m_scale(1.f, 1.f, 1.f) {
-	log(LC_Debug, "Constructor: Entity");
+	log(LC_Debug, u"Constructor: Entity");
 }
 
 Entity::~Entity() {
-	log(LC_Debug, "Destructor: Entity");
+	log(LC_Debug, u"Destructor: Entity");
 }
 
 Entity::RenderOptions Entity::renderOptions() const {

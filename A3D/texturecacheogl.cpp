@@ -7,11 +7,11 @@ namespace A3D {
 
 TextureCacheOGL::TextureCacheOGL(Texture* parent)
 	: TextureCache{ parent } {
-	log(LC_Debug, "Constructor: TextureCacheOGL");
+	log(LC_Debug, u"Constructor: TextureCacheOGL");
 }
 
 TextureCacheOGL::~TextureCacheOGL() {
-	log(LC_Debug, "Destructor: TextureCacheOGL");
+	log(LC_Debug, u"Destructor: TextureCacheOGL");
 }
 
 inline QOpenGLTexture::WrapMode translateWrapMode(Texture::WrapMode wm) {

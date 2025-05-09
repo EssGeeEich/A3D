@@ -7,10 +7,10 @@ LineGroupCache::LineGroupCache(LineGroup* parent)
 	: QObject{ parent },
 	  m_lineGroup(parent),
 	  m_isDirty(true) {
-	log(LC_Debug, "Constructor: LineGroup");
+	log(LC_Debug, u"Constructor: LineGroup");
 }
 LineGroupCache::~LineGroupCache() {
-	log(LC_Debug, "Destructor: LineGroup");
+	log(LC_Debug, u"Destructor: LineGroup");
 }
 
 LineGroup* LineGroupCache::lineGroup() const {

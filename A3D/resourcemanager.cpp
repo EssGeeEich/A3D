@@ -41,6 +41,13 @@ Texture* ResourceManager::getLoadedTexture(QString const& name) const {
 	return it->second;
 }
 
+Cubemap* ResourceManager::getLoadedCubemap(QString const& name) const {
+	auto it = m_cubemaps.find(name);
+	if(it == m_cubemaps.end() || !it->second)
+		return nullptr;
+	return it->second;
+}
+
 Model* ResourceManager::registerModel(QString name, Model* model) {
 	QPointer<Model>& m = m_models[std::move(name)];
 	if(m)
@@ -64,6 +71,13 @@ Material* ResourceManager::registerMaterial(QString name, Material* resource) {
 
 Texture* ResourceManager::registerTexture(QString name, Texture* resource) {
 	QPointer<Texture>& t = m_textures[std::move(name)];
+	if(t)
+		delete t;
+	return t = resource;
+}
+
+Cubemap* ResourceManager::registerCubemap(QString name, Cubemap* resource) {
+	QPointer<Cubemap>& t = m_cubemaps[std::move(name)];
 	if(t)
 		delete t;
 	return t = resource;
@@ -100,6 +114,15 @@ QStringList ResourceManager::registeredTextures() const {
 	QStringList sl;
 	sl.reserve(m_textures.size());
 	for(auto it = m_textures.begin(); it != m_textures.end(); ++it) {
+		sl << it->first;
+	}
+	return sl;
+}
+
+QStringList ResourceManager::registeredCubemaps() const {
+	QStringList sl;
+	sl.reserve(m_cubemaps.size());
+	for(auto it = m_cubemaps.begin(); it != m_cubemaps.end(); ++it) {
 		sl << it->first;
 	}
 	return sl;

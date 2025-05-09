@@ -6,10 +6,10 @@ Scene::Scene(QObject* parent)
 	: Entity{ nullptr },
 	  m_runTimeMultiplier(1.f) {
 	QObject::setParent(parent);
-	log(LC_Debug, "Constructor: Scene");
+	log(LC_Debug, u"Constructor: Scene");
 }
 Scene::~Scene() {
-	log(LC_Debug, "Destructor: Scene");
+	log(LC_Debug, u"Destructor: Scene");
 }
 
 ResourceManager* Scene::resourceManager() {

@@ -6,37 +6,29 @@ namespace A3D {
 
 void log(LogChannel channel, QStringView text) {
 	auto timestamp = []() -> QString {
-		return QDateTime::currentDateTime().toString("[yyyy.MM.dd hh:mm:ss.zzz] ");
+		return QDateTime::currentDateTime().toString(u"[yyyy.MM.dd hh:mm:ss.zzz] ");
 	};
 
 	switch(channel) {
 	default:
 	case LC_Debug:
 #ifdef _DEBUG
-		qDebug().noquote() << timestamp() << "[D] " << text;
+		qDebug().noquote() << timestamp() << u"[D] " << text;
 #endif
 		break;
 	case LC_Info:
-		qInfo().noquote() << timestamp() << "[I] " << text;
+		qInfo().noquote() << timestamp() << u"[I] " << text;
 		break;
 	case LC_Warning:
-		qWarning().noquote() << timestamp() << "[W] " << text;
+		qWarning().noquote() << timestamp() << u"[W] " << text;
 		break;
 	case LC_Critical:
-		qCritical().noquote() << timestamp() << "[C] " << text;
+		qCritical().noquote() << timestamp() << u"[C] " << text;
 		break;
 	case LC_Fatal:
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-		qCritical().noquote() << timestamp() << "[C] " << text;
-#else
-		qFatal().noquote() << timestamp() << "[F] " << text;
-#endif
+		qFatal().noquote() << timestamp() << u"[F] " << text;
 		break;
 	}
-}
-
-void log(LogChannel channel, QString text) {
-	log(channel, QStringView(text));
 }
 
 QVector3D axisVector(Axis3D axis) {
@@ -51,6 +43,38 @@ QVector3D axisVector(Axis3D axis) {
 		return axes[axis];
 
 	return axes[AXIS_COUNT];
+}
+
+void setVectorAxis(QVector3D& vector, Axis3D axis, float value) {
+	if(axis < AXIS_COUNT)
+		vector[axis] = value;
+}
+
+float getVectorAxis(QVector3D const& vector, Axis3D axis) {
+	if(axis < AXIS_COUNT)
+		return vector[axis];
+
+	return 0.f;
+}
+
+RawMatrix4x4::RawMatrix4x4()
+	: RawMatrix4x4(QMatrix4x4()) {}
+
+RawMatrix4x4::RawMatrix4x4(QMatrix4x4 const& m) {
+	std::memcpy(data, m.data(), sizeof(data));
+}
+
+RawMatrix4x4& RawMatrix4x4::operator=(QMatrix4x4 const& m) {
+	std::memcpy(data, m.data(), sizeof(data));
+	return *this;
+}
+
+bool RawMatrix4x4::operator==(QMatrix4x4 const& o) const {
+	return std::memcmp(data, o.data(), sizeof(data)) == 0;
+}
+
+bool RawMatrix4x4::operator!=(QMatrix4x4 const& o) const {
+	return !(*this == o);
 }
 
 void normalizeMinMax(std::vector<float>& data, float min, float max) {
@@ -72,21 +96,16 @@ void normalize(std::vector<float>& data) {
 	normalizeMinMax(data, *itMin, *itMax);
 }
 
-void setVectorAxis(QVector3D& vector, Axis3D axis, float value) {
-	if(axis < AXIS_COUNT)
-		vector[axis] = value;
-}
-
-float getVectorAxis(QVector3D const& vector, Axis3D axis) {
-	if(axis < AXIS_COUNT)
-		return vector[axis];
-
-	return 0.f;
-}
-
 QVector4D colorToVector(QColor color) {
 	return QVector4D(color.redF(), color.greenF(), color.blueF(), color.alphaF());
 	;
+}
+
+QImage const* imageWithFormat(QImage::Format format, QImage const& base, QImage& storage) {
+	if(base.format() == format)
+		return &base;
+	storage = base.convertToFormat(format);
+	return &storage;
 }
 
 // Möller–Trumbore algorithm

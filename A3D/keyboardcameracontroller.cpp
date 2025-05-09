@@ -33,7 +33,7 @@ KeyboardCameraController::KeyboardCameraController(View* view)
 	std::memset(m_actions, 0, sizeof(m_actions));
 }
 
-void KeyboardCameraController::setKeyBinding(Qt::Key k, Action a) {
+void KeyboardCameraController::addKeyBinding(Qt::Key k, Action a) {
 	m_keyBindings[k] = a;
 	updateActions();
 }

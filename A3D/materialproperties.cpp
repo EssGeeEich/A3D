@@ -6,24 +6,24 @@ namespace A3D {
 MaterialProperties::MaterialProperties(ResourceManager* resourceManager)
 	: Resource{ resourceManager },
 	  m_alwaysTranslucent(false) {
-	log(LC_Debug, "Constructor: MaterialProperties");
+	log(LC_Debug, u"Constructor: MaterialProperties");
 }
 
 MaterialProperties::~MaterialProperties() {
-	log(LC_Debug, "Destructor: MaterialProperties (start)");
+	log(LC_Debug, u"Destructor: MaterialProperties (start)");
 	for(auto it = m_materialPropertiesCache.begin(); it != m_materialPropertiesCache.end(); ++it) {
 		if(it->second.isNull())
 			continue;
 
 		Renderer* r = Renderer::getRenderer(it->first);
 		if(!r) {
-			log(LC_Info, "MaterialProperties::~MaterialProperties: Potential memory leak? Renderer not available.");
+			log(LC_Info, u"MaterialProperties::~MaterialProperties: Potential memory leak? Renderer not available.");
 			continue;
 		}
 
 		r->Delete(it->second);
 	}
-	log(LC_Debug, "Destructor: MaterialProperties (end)");
+	log(LC_Debug, u"Destructor: MaterialProperties (end)");
 }
 
 MaterialProperties* MaterialProperties::clone() const {

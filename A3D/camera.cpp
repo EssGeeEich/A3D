@@ -30,11 +30,11 @@ Camera::Camera()
 	  m_farPlane(1000.f),
 	  m_perspVerticalFOV(45.f),
 	  m_perspAspectRatio(16.f / 9.f) {
-	log(LC_Debug, "Constructor: Camera");
+	log(LC_Debug, u"Constructor: Camera");
 }
 
 Camera::~Camera() {
-	log(LC_Debug, "Destructor: Camera");
+	log(LC_Debug, u"Destructor: Camera");
 }
 
 QVector3D const& Camera::position() const {
@@ -170,15 +170,15 @@ QMatrix4x4 const& Camera::getProjection() const {
 }
 
 QVector3D Camera::unprojectPoint(QPointF xy, float z) const {
-    QMatrix4x4 invProj = getProjection().inverted();
-    QMatrix4x4 invView = getView().inverted();
+	QMatrix4x4 invProj = getProjection().inverted();
+	QMatrix4x4 invView = getView().inverted();
 
-    QVector4D point = QVector4D((xy.x() * 2.f) - 1.f, (xy.y() * -2.f) + 1.f, z, 1.f);
+	QVector4D point = QVector4D((xy.x() * 2.f) - 1.f, (xy.y() * -2.f) + 1.f, z, 1.f);
 
-    QVector4D eye = invProj * point;
-    eye.setW(1.f);
+	QVector4D eye = invProj * point;
+	eye.setW(1.f);
 
-    return (invView * eye).toVector3D();
+	return (invView * eye).toVector3D();
 }
 
 }

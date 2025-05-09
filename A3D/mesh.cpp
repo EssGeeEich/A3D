@@ -135,24 +135,24 @@ Mesh::Mesh(ResourceManager* resourceManager)
 	: Resource{ resourceManager },
 	  m_drawMode(Triangles),
 	  m_renderOptions(NoOptions) {
-	log(LC_Debug, "Constructor: Mesh");
+	log(LC_Debug, u"Constructor: Mesh");
 }
 
 Mesh::~Mesh() {
-	log(LC_Debug, "Destructor: Mesh (begin)");
+	log(LC_Debug, u"Destructor: Mesh (begin)");
 	for(auto it = m_meshCache.begin(); it != m_meshCache.end(); ++it) {
 		if(it->second.isNull())
 			continue;
 
 		Renderer* r = Renderer::getRenderer(it->first);
 		if(!r) {
-			log(LC_Info, "Mesh::~Mesh: Potential memory leak? Renderer not available.");
+			log(LC_Info, u"Mesh::~Mesh: Potential memory leak? Renderer not available.");
 			continue;
 		}
 
 		r->Delete(it->second);
 	}
-	log(LC_Debug, "Destructor: Mesh (end)");
+	log(LC_Debug, u"Destructor: Mesh (end)");
 }
 
 Mesh* Mesh::clone() const {

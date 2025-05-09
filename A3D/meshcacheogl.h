@@ -1,3 +1,6 @@
+/// @file
+/// @brief Declares the MeshCacheOGL class used for OpenGL-specific Mesh caching.
+
 #ifndef A3DMESHCACHEOGL_H
 #define A3DMESHCACHEOGL_H
 
@@ -8,61 +11,68 @@
 #include <QOpenGLVertexArrayObject>
 
 namespace A3D {
+
 class RendererOGL;
+
+/// @brief OpenGL implementation of MeshCache that manages GPU meshes.
 class MeshCacheOGL : public MeshCache {
 	Q_OBJECT
 public:
+	/// OpenGL attribute indices mapping for vertex attributes.
 	enum {
-		Position3DAttribute     = 0,
-		Position2DAttribute     = 1,
-		TextureCoord2DAttribute = 2,
-		Normal3DAttribute       = 3,
-		Color3DAttribute        = 4,
-		Color4DAttribute        = 5,
-		BoneIDAttribute         = 6,
-		BoneWeightsAttribute    = 7,
-		SmoothingGroupAttribute = 8,
+		Position3DAttribute     = 0, ///< 3D position attribute index
+		Position2DAttribute     = 1, ///< 2D position attribute index
+		TextureCoord2DAttribute = 2, ///< 2D texture coordinate attribute index
+		Normal3DAttribute       = 3, ///< Normal vector attribute index
+		Color3DAttribute        = 4, ///< RGB color attribute index
+		Color4DAttribute        = 5, ///< RGBA color attribute index
+		BoneIDAttribute         = 6, ///< Bone ID array attribute index for skinning
+		BoneWeightsAttribute    = 7, ///< Bone weights array attribute index for skinning
+		SmoothingGroupAttribute = 8  ///< Smoothing group attribute index
 	};
 
-	explicit MeshCacheOGL(Mesh*);
+	/// @brief Constructs a MeshCacheOGL.
+	/// @param[in] parent The parent Mesh associated with this cache.
+	explicit MeshCacheOGL(Mesh* parent);
+
+	/// @brief Destructor.
 	~MeshCacheOGL();
 
-	void update(RendererOGL*, CoreGLFunctions*);
-	void render(RendererOGL*, CoreGLFunctions*, QMatrix4x4 const& modelMatrix, QMatrix4x4 const& viewMatrix, QMatrix4x4 const& projMatrix);
+	/// @brief Updates the OpenGL buffer contents from the current Mesh data.
+	/// @param[in] renderer Pointer to the OpenGL renderer.
+	/// @param[in] gl Pointer to OpenGL core functions.
+	void update(RendererOGL* renderer, CoreGLFunctions* gl);
+
+	/// @brief Renders the mesh using cached OpenGL resources.
+	/// @param[in] renderer Pointer to the OpenGL renderer.
+	/// @param[in] gl Pointer to OpenGL core functions.
+	/// @param[in] modelMatrix World transform matrix.
+	/// @param[in] viewMatrix View transform matrix.
+	/// @param[in] projMatrix Projection transform matrix.
+	void render(RendererOGL* renderer, CoreGLFunctions* gl, QMatrix4x4 const& modelMatrix, QMatrix4x4 const& viewMatrix, QMatrix4x4 const& projMatrix);
 
 private:
-	Mesh::DrawMode m_drawMode;
-	QOpenGLVertexArrayObject m_vao;
-	QOpenGLBuffer m_vbo;
-	QOpenGLBuffer m_ibo;
-	std::size_t m_elementCount;
-	GLenum m_iboFormat;
+	Mesh::DrawMode m_drawMode;      ///< Draw mode topology
+	QOpenGLVertexArrayObject m_vao; ///< Vertex Array Object for attribute state
+	QOpenGLBuffer m_vbo;            ///< Vertex Buffer Object for vertex data
+	QOpenGLBuffer m_ibo;            ///< Index Buffer Object for index data
+	std::size_t m_elementCount;     ///< Number of elements to render
+	GLenum m_iboFormat;             ///< OpenGL format used for index buffer (e.g., GL_UNSIGNED_INT)
 
-	struct RawMatrix4x4 {
-		inline RawMatrix4x4()
-			: RawMatrix4x4(QMatrix4x4()) {}
-		inline RawMatrix4x4(QMatrix4x4 const& m) { *this = m; }
-		inline RawMatrix4x4& operator=(QMatrix4x4 const& m) {
-			std::memcpy(data, m.data(), sizeof(data));
-			return *this;
-		}
-		inline bool operator==(QMatrix4x4 const& o) const { return std::memcmp(data, o.data(), sizeof(data)) == 0; }
-		inline bool operator!=(QMatrix4x4 const& o) const { return !(*this == o); }
-		float data[16];
-	};
+	/// @brief Uniform buffer data for mesh transforms.
 	struct MeshUBO_Data {
-		RawMatrix4x4 pMatrix;
-		RawMatrix4x4 vMatrix;
-		RawMatrix4x4 mMatrix;
+		RawMatrix4x4 pMatrix;         ///< Projection matrix
+		RawMatrix4x4 vMatrix;         ///< View matrix
+		RawMatrix4x4 mMatrix;         ///< Model matrix
+		RawMatrix4x4 mvMatrix;        ///< Model-View matrix
+		RawMatrix4x4 mvpMatrix;       ///< Model-View-Projection matrix
+		RawMatrix4x4 mNormalMatrix;   ///< Normal matrix from Model matrix
+		RawMatrix4x4 mvNormalMatrix;  ///< Normal matrix from Model-View matrix
+		RawMatrix4x4 mvpNormalMatrix; ///< Normal matrix from Model-View-Projection matrix
+	};
 
-		RawMatrix4x4 mvMatrix;
-		RawMatrix4x4 mvpMatrix;
-
-		RawMatrix4x4 mNormalMatrix;
-		RawMatrix4x4 mvNormalMatrix;
-		RawMatrix4x4 mvpNormalMatrix;
-	} m_meshUBO_data;
-	GLuint m_meshUBO;
+	MeshUBO_Data m_meshUBO_data; ///< Uniform buffer data for mesh transform data.
+	GLuint m_meshUBO;            ///< OpenGL buffer ID for mesh uniform data
 };
 
 }

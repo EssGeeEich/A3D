@@ -242,7 +242,7 @@ Model* ResourceManager::loadModel_OBJ(OpenFileResult ofr) {
 		for(auto it = materialFiles.begin(); it != materialFiles.end(); ++it) {
 			OpenFileResult mtl = openFile(ofr, *it);
 			if(!mtl.stream) {
-				log(LC_Debug, "MTL file couldn't be opened: " + *it);
+				log(LC_Debug, u"MTL file couldn't be opened: " + *it);
 				continue;
 			}
 

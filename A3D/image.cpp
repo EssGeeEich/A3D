@@ -4,6 +4,11 @@
 
 namespace A3D {
 
+Image::HDRData::HDRData()
+	: w(0),
+	  h(0),
+	  nrComponents(0) {}
+
 Image Image::HDR(QString path) {
 	QFile f(path);
 	if(!f.open(QFile::ReadOnly))
@@ -16,14 +21,19 @@ Image Image::HDR(QString path) {
 Image::Image()
 	: Image(QImage()) {}
 
-Image::Image(QImage const& i)
+Image::Image(QImage i)
 	: m_type(T_QIMAGE),
 	  m_transparent(TD_NOT_DONE_YET),
-	  m_qimage(i) {}
+	  m_qimage(std::move(i)) {}
 
-void Image::setFromQImage(QImage const& i) {
+Image::Image(HDRData data)
+	: m_type(T_HDRDATA),
+	  m_transparent(TD_NOT_DONE_YET),
+	  m_hdr(std::move(data)) {}
+
+void Image::setFromQImage(QImage i) {
 	m_hdr.m_data.clear();
-	m_qimage      = i;
+	m_qimage      = std::move(i);
 	m_type        = T_QIMAGE;
 	m_transparent = TD_NOT_DONE_YET;
 }

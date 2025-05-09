@@ -1,3 +1,6 @@
+/// @file
+/// @brief Declares the LineGroupCacheOGL class used for OpenGL-specific LineGroup caching.
+
 #ifndef A3DLINEGROUPCACHEOGL_H
 #define A3DLINEGROUPCACHEOGL_H
 
@@ -10,61 +13,69 @@
 namespace A3D {
 
 class RendererOGL;
+
+/// @brief OpenGL-specific implementation of LineGroupCache for storing and binding LineGroup meshes in the rendering pipeline.
 class LineGroupCacheOGL : public LineGroupCache {
 	Q_OBJECT
 public:
+	/// @brief OpenGL attribute indices used for vertex attributes.
 	enum {
-		Position3DAttribute = 0,
-		Position2DAttribute = 1,
-		Color3DAttribute    = 2,
-		Color4DAttribute    = 3,
+		Position3DAttribute = 0, ///< Index for 3D vertex position attribute
+		Position2DAttribute = 1, ///< Index for 2D vertex position attribute
+		Color3DAttribute    = 2, ///< Index for 3D color attribute
+		Color4DAttribute    = 3  ///< Index for 4D color (with alpha) attribute
 	};
 
-	explicit LineGroupCacheOGL(LineGroup*);
+	/// @brief Constructs a LineGroupCacheOGL.
+	/// @param[in] parent The parent LineGroup associated with this cache.
+	explicit LineGroupCacheOGL(LineGroup* parent);
+
+	/// @brief Destructor.
 	~LineGroupCacheOGL();
 
-	void update(RendererOGL*, CoreGLFunctions*);
-	void render(RendererOGL*, CoreGLFunctions*, QMatrix4x4 const& modelMatrix, QMatrix4x4 const& viewMatrix, QMatrix4x4 const& projMatrix);
+	/// @brief Updates the OpenGL linegroup buffers based on the current LineGroup data.
+	/// @param[in] renderer Pointer to the OpenGL renderer.
+	/// @param[in] gl Pointer to OpenGL core functions.
+	void update(RendererOGL* renderer, CoreGLFunctions* gl);
+
+	/// @brief Binds and renders the LineGroup using the cached OpenGL data.
+	/// @param[in] renderer Pointer to the OpenGL renderer.
+	/// @param[in] gl Pointer to OpenGL core functions.
+	/// @param[in] modelMatrix Model transformation matrix.
+	/// @param[in] viewMatrix View transformation matrix.
+	/// @param[in] projMatrix Projection transformation matrix.
+	void render(RendererOGL* renderer, CoreGLFunctions* gl, QMatrix4x4 const& modelMatrix, QMatrix4x4 const& viewMatrix, QMatrix4x4 const& projMatrix);
 
 private:
-	LineGroup::DrawMode m_drawMode;
-	QOpenGLVertexArrayObject m_vao;
-	QOpenGLBuffer m_vbo;
-	QOpenGLBuffer m_ibo;
-	std::size_t m_elementCount;
-	GLenum m_iboFormat;
+	LineGroup::DrawMode m_drawMode; ///< Draw mode (Lines, LineStrips, etc.)
+	QOpenGLVertexArrayObject m_vao; ///< OpenGL VAO for managing state
+	QOpenGLBuffer m_vbo;            ///< Vertex buffer object
+	QOpenGLBuffer m_ibo;            ///< Index buffer object
+	std::size_t m_elementCount;     ///< Number of elements to render
+	GLenum m_iboFormat;             ///< Format of the index buffer (e.g., GL_UNSIGNED_INT)
 
-	struct RawMatrix4x4 {
-		inline RawMatrix4x4()
-			: RawMatrix4x4(QMatrix4x4()) {}
-		inline RawMatrix4x4(QMatrix4x4 const& m) { *this = m; }
-		inline RawMatrix4x4& operator=(QMatrix4x4 const& m) {
-			std::memcpy(data, m.data(), sizeof(data));
-			return *this;
-		}
-		inline bool operator==(QMatrix4x4 const& o) const { return std::memcmp(data, o.data(), sizeof(data)) == 0; }
-		inline bool operator!=(QMatrix4x4 const& o) const { return !(*this == o); }
-		float data[16];
-	};
+	/// @brief Uniform buffer data for mesh transforms.
 	struct MeshUBO_Data {
-		RawMatrix4x4 pMatrix;
-		RawMatrix4x4 vMatrix;
-		RawMatrix4x4 mMatrix;
+		RawMatrix4x4 pMatrix;         ///< Projection matrix
+		RawMatrix4x4 vMatrix;         ///< View matrix
+		RawMatrix4x4 mMatrix;         ///< Model matrix
+		RawMatrix4x4 mvMatrix;        ///< Model-View matrix
+		RawMatrix4x4 mvpMatrix;       ///< Model-View-Projection matrix
+		RawMatrix4x4 mNormalMatrix;   ///< Normal matrix from Model matrix
+		RawMatrix4x4 mvNormalMatrix;  ///< Normal matrix from Model-View matrix
+		RawMatrix4x4 mvpNormalMatrix; ///< Normal matrix from Model-View-Projection matrix
+	};
 
-		RawMatrix4x4 mvMatrix;
-		RawMatrix4x4 mvpMatrix;
-
-		RawMatrix4x4 mNormalMatrix;
-		RawMatrix4x4 mvNormalMatrix;
-		RawMatrix4x4 mvpNormalMatrix;
-	} m_meshUBO_data;
+	/// @brief Uniform buffer data for line-specific settings.
 	struct LineUBO_Data {
-		float LineThickness;
-		float FeatherSize;
-	} m_lineUBO_data;
+		float LineThickness; ///< Line width in world units
+		float FeatherSize;   ///< Anti-aliasing feather size
+	};
 
-	GLuint m_meshUBO;
-	GLuint m_lineUBO;
+	MeshUBO_Data m_meshUBO_data; ///< Uniform buffer data for mesh transform data.
+	LineUBO_Data m_lineUBO_data; ///< Uniform buffer data for linegroup data.
+	GLuint m_meshUBO;            ///< OpenGL buffer ID for mesh uniform data
+	GLuint m_lineUBO;            ///< OpenGL buffer ID for line uniform data
 };
 
 }

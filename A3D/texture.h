@@ -1,3 +1,5 @@
+
+
 #ifndef A3DTEXTURE_H
 #define A3DTEXTURE_H
 

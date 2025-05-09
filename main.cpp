@@ -234,7 +234,7 @@ int main(int argc, char* argv[]) {
 		}
 	});
 
-	v->run();
+	v->setAutoRefreshEnabled(true);
 	s->run();
 
 	w.setCentralWidget(v);

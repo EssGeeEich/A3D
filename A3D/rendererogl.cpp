@@ -13,13 +13,13 @@ RendererOGL::RendererOGL(QOpenGLContext* ctx, CoreGLFunctions* gl)
 	  m_sceneUBO(0),
 	  m_brdfCalculated(false),
 	  m_brdfLUT(0) {
-	log(LC_Debug, "Constructor: RendererOGL");
+	log(LC_Debug, u"Constructor: RendererOGL");
 }
 
 RendererOGL::~RendererOGL() {
-	log(LC_Debug, "Destructor: RendererOGL (start)");
+	log(LC_Debug, u"Destructor: RendererOGL (start)");
 	DeleteAllResources();
-	log(LC_Debug, "Destructor: RendererOGL (end)");
+	log(LC_Debug, u"Destructor: RendererOGL (end)");
 }
 
 void RendererOGL::pushState(bool withFramebuffer) {
@@ -27,7 +27,7 @@ void RendererOGL::pushState(bool withFramebuffer) {
 	Q_UNUSED(glErrorCheck)
 
 	if(m_stateStorage.size() > 24) {
-		log(LC_Critical, "RendererOGL::pushState: GL State stack is too big.");
+		log(LC_Critical, u"RendererOGL::pushState: GL State stack is too big.");
 		return;
 	}
 
@@ -82,7 +82,7 @@ void RendererOGL::popState() {
 	Q_UNUSED(glErrorCheck)
 
 	if(m_stateStorage.empty()) {
-		log(LC_Critical, "RendererOGL::popState: GL State stack is empty.");
+		log(LC_Critical, u"RendererOGL::popState: GL State stack is empty.");
 		return;
 	}
 
@@ -280,7 +280,7 @@ std::shared_ptr<RendererOGL::DeferredCaller> RendererOGL::checkGlErrors(QString 
 	return std::make_shared<RendererOGL::DeferredCaller>([this, context]() {
 		GLenum err = GL_NO_ERROR;
 		while((err = m_gl->glGetError()) != GL_NO_ERROR) {
-			log(LC_Warning, QLatin1String("OpenGL Error in context %1: 0x%2").arg(context, QString::number(err, 16)));
+			log(LC_Warning, QStringLiteral(u"OpenGL Error in context %1: 0x%2").arg(context, QString::number(err, 16)));
 		}
 	});
 }
@@ -351,7 +351,7 @@ private:
 
 void RendererOGL::Delete(MeshCache* meshCache) {
 	if(m_context.isNull()) {
-		log(LC_Debug, "Couldn't delete MeshCache: OpenGL context is unavailable. A memory leak might have happened.");
+		log(LC_Debug, u"Couldn't delete MeshCache: OpenGL context is unavailable. A memory leak might have happened.");
 		return;
 	}
 
@@ -363,7 +363,7 @@ void RendererOGL::Delete(MeshCache* meshCache) {
 
 void RendererOGL::Delete(MaterialCache* matCache) {
 	if(m_context.isNull()) {
-		log(LC_Debug, "Couldn't delete MaterialCache: OpenGL context is unavailable. A memory leak might have happened.");
+		log(LC_Debug, u"Couldn't delete MaterialCache: OpenGL context is unavailable. A memory leak might have happened.");
 		return;
 	}
 
@@ -375,7 +375,7 @@ void RendererOGL::Delete(MaterialCache* matCache) {
 
 void RendererOGL::Delete(MaterialPropertiesCache* matPropCache) {
 	if(m_context.isNull()) {
-		log(LC_Debug, "Couldn't delete MaterialPropertiesCache: OpenGL context is unavailable. A memory leak might have happened.");
+		log(LC_Debug, u"Couldn't delete MaterialPropertiesCache: OpenGL context is unavailable. A memory leak might have happened.");
 		return;
 	}
 
@@ -387,7 +387,7 @@ void RendererOGL::Delete(MaterialPropertiesCache* matPropCache) {
 
 void RendererOGL::Delete(TextureCache* texCache) {
 	if(m_context.isNull()) {
-		log(LC_Debug, "Couldn't delete TextureCache: OpenGL context is unavailable. A memory leak might have happened.");
+		log(LC_Debug, u"Couldn't delete TextureCache: OpenGL context is unavailable. A memory leak might have happened.");
 		return;
 	}
 
@@ -399,7 +399,7 @@ void RendererOGL::Delete(TextureCache* texCache) {
 
 void RendererOGL::Delete(CubemapCache* cubemapCache) {
 	if(m_context.isNull()) {
-		log(LC_Debug, "Couldn't delete CubemapCache: OpenGL context is unavailable. A memory leak might have happened.");
+		log(LC_Debug, u"Couldn't delete CubemapCache: OpenGL context is unavailable. A memory leak might have happened.");
 		return;
 	}
 
@@ -411,7 +411,7 @@ void RendererOGL::Delete(CubemapCache* cubemapCache) {
 
 void RendererOGL::Delete(LineGroupCache* lineGroupCache) {
 	if(m_context.isNull()) {
-		log(LC_Debug, "Couldn't delete LineGroupCache: OpenGL context is unavailable. A memory leak might have happened.");
+		log(LC_Debug, u"Couldn't delete LineGroupCache: OpenGL context is unavailable. A memory leak might have happened.");
 		return;
 	}
 
@@ -423,7 +423,7 @@ void RendererOGL::Delete(LineGroupCache* lineGroupCache) {
 
 void RendererOGL::DeleteAllResources() {
 	if(m_context.isNull()) {
-		log(LC_Debug, "Couldn't delete resources: OpenGL context is unavailable. A memory leak might have happened.");
+		log(LC_Debug, u"Couldn't delete resources: OpenGL context is unavailable. A memory leak might have happened.");
 		return;
 	}
 

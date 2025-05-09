@@ -5,81 +5,66 @@ namespace A3D {
 
 Cubemap::Cubemap(ResourceManager* resourceManager)
 	: Resource{ resourceManager } {
-	log(LC_Debug, "Constructor: Cubemap");
+	log(LC_Debug, u"Constructor: Cubemap");
 }
 Cubemap::~Cubemap() {
-	log(LC_Debug, "Destructor: Cubemap (start)");
+	log(LC_Debug, u"Destructor: Cubemap (start)");
 	for(auto it = m_cubemapCache.begin(); it != m_cubemapCache.end(); ++it) {
 		if(it->second.isNull())
 			continue;
 
 		Renderer* r = Renderer::getRenderer(it->first);
 		if(!r) {
-			log(LC_Info, "Cubemap::~Cubemap: Potential memory leak? Renderer not available.");
+			log(LC_Info, u"Cubemap::~Cubemap: Potential memory leak? Renderer not available.");
 			continue;
 		}
 
 		r->Delete(it->second);
 	}
-	log(LC_Debug, "Destructor: Cubemap (end)");
+	log(LC_Debug, u"Destructor: Cubemap (end)");
 }
 
 Cubemap* Cubemap::clone() const {
 	Cubemap* newCubemap = new Cubemap(resourceManager());
-	newCubemap->m_nx    = m_nx;
-	newCubemap->m_ny    = m_ny;
-	newCubemap->m_nz    = m_nz;
-	newCubemap->m_px    = m_px;
-	newCubemap->m_py    = m_py;
-	newCubemap->m_pz    = m_pz;
+	for(std::size_t i = 0; i < CF_COUNT; ++i)
+		newCubemap->m_faces[i] = m_faces[i];
 	return newCubemap;
 }
 
-void Cubemap::setNX(Image const& img) {
-	m_nx = img;
-}
-void Cubemap::setNY(Image const& img) {
-	m_ny = img;
-}
-void Cubemap::setNZ(Image const& img) {
-	m_nz = img;
-}
-void Cubemap::setPX(Image const& img) {
-	m_px = img;
-}
-void Cubemap::setPY(Image const& img) {
-	m_py = img;
-}
-void Cubemap::setPZ(Image const& img) {
-	m_pz = img;
+void Cubemap::setCubemapFace(CubemapFace face, Image const& image) {
+	if(face >= CF_COUNT)
+		return;
+	m_faces[face] = image;
 }
 
-Image const& Cubemap::nx() const {
-	return m_nx;
-}
-Image const& Cubemap::ny() const {
-	return m_ny;
-}
-Image const& Cubemap::nz() const {
-	return m_nz;
-}
-Image const& Cubemap::px() const {
-	return m_px;
-}
-Image const& Cubemap::py() const {
-	return m_py;
-}
-Image const& Cubemap::pz() const {
-	return m_pz;
+Image const& Cubemap::cubemapFace(CubemapFace face) const {
+	if(face < CF_COUNT)
+		return m_faces[face];
+	static Image invalid;
+	return invalid;
 }
 
 bool Cubemap::isValid() const {
-	if(m_nx.isNull() || m_ny.isNull() || m_nz.isNull() || m_px.isNull() || m_py.isNull() || m_pz.isNull())
+	if(m_faces[0].isNull())
 		return false;
 
-	QSize s = nx().size();
-	if(s != ny().size() || s != nz().size() || s != px().size() || s != py().size() || s != pz().size()) {
+	QSize const s = m_faces[0].size();
+	if(s.width() != s.height())
 		return false;
+
+	bool const isQImage = m_faces[0].isQImage();
+	bool const isHDR    = m_faces[0].isHDR();
+
+	for(std::size_t i = 1; i < CF_COUNT; ++i) {
+		if(m_faces[i].isNull())
+			return false;
+
+		if(m_faces[i].size() != s)
+			return false;
+		if(m_faces[i].isQImage() != isQImage)
+			return false;
+		if(m_faces[i].isHDR() != isHDR)
+			return false;
 	}
 
 	return true;

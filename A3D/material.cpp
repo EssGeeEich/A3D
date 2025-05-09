@@ -60,24 +60,24 @@ Material* Material::standardMaterial(StandardMaterial stdMat) {
 Material::Material(ResourceManager* resourceManager)
 	: Resource{ resourceManager },
 	  m_renderOptions(NoOptions) {
-	log(LC_Debug, "Constructor: Material");
+	log(LC_Debug, u"Constructor: Material");
 }
 
 Material::~Material() {
-	log(LC_Debug, "Destructor: Material (start)");
+	log(LC_Debug, u"Destructor: Material (start)");
 	for(auto it = m_materialCache.begin(); it != m_materialCache.end(); ++it) {
 		if(it->second.isNull())
 			continue;
 
 		Renderer* r = Renderer::getRenderer(it->first);
 		if(!r) {
-			log(LC_Info, "Material::~Material: Potential memory leak? Renderer not available.");
+			log(LC_Info, u"Material::~Material: Potential memory leak? Renderer not available.");
 			continue;
 		}
 
 		r->Delete(it->second);
 	}
-	log(LC_Debug, "Destructor: Material (end)");
+	log(LC_Debug, u"Destructor: Material (end)");
 }
 
 Material* Material::clone() const {

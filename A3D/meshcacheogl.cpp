@@ -12,11 +12,11 @@ MeshCacheOGL::MeshCacheOGL(Mesh* parent)
 	  m_elementCount(0),
 	  m_iboFormat(GL_UNSIGNED_INT),
 	  m_meshUBO(0) {
-	log(LC_Debug, "Constructor: MeshCacheOGL");
+	log(LC_Debug, u"Constructor: MeshCacheOGL");
 }
 
 MeshCacheOGL::~MeshCacheOGL() {
-	log(LC_Debug, "Destructor: MeshCacheOGL");
+	log(LC_Debug, u"Destructor: MeshCacheOGL");
 
 	if(m_meshUBO) {
 		QOpenGLContext::currentContext()->functions()->glDeleteBuffers(1, &m_meshUBO);

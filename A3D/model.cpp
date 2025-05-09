@@ -7,11 +7,11 @@ Model::Model(QObject* parent)
 	  m_renderOptions(NoOptions),
 	  m_matrixDirty(true),
 	  m_scale(1.f, 1.f, 1.f) {
-	log(LC_Debug, "Constructor: Model");
+	log(LC_Debug, u"Constructor: Model");
 }
 
 Model::~Model() {
-	log(LC_Debug, "Destructor: Model");
+	log(LC_Debug, u"Destructor: Model");
 }
 
 Model* Model::clone(bool deepClone) const {

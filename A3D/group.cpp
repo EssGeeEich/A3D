@@ -9,11 +9,11 @@ Group::Group(Model* model)
 	  m_model(model),
 	  m_matrixDirty(true),
 	  m_scale(1.f, 1.f, 1.f) {
-	log(LC_Debug, "Constructor: Group");
+	log(LC_Debug, u"Constructor: Group");
 }
 
 Group::~Group() {
-	log(LC_Debug, "Destructor: Group");
+	log(LC_Debug, u"Destructor: Group");
 }
 
 Group* Group::clone(Model* m, bool deepClone) const {

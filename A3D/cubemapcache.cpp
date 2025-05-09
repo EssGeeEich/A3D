@@ -7,10 +7,10 @@ CubemapCache::CubemapCache(Cubemap* parent)
 	: QObject{ parent },
 	  m_cubemap(parent),
 	  m_isDirty(true) {
-	log(LC_Debug, "Constructor: CubemapCache");
+	log(LC_Debug, u"Constructor: CubemapCache");
 }
 CubemapCache::~CubemapCache() {
-	log(LC_Debug, "Destructor: CubemapCache");
+	log(LC_Debug, u"Destructor: CubemapCache");
 }
 
 Cubemap* CubemapCache::cubemap() const {

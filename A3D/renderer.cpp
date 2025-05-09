@@ -29,13 +29,13 @@ Renderer* Renderer::getRenderer(std::uintptr_t rendererID) {
 Renderer::Renderer()
 	: m_rendererID(0),
 	  m_currentScene(nullptr) {
-	log(LC_Debug, "Constructor: Renderer");
+	log(LC_Debug, u"Constructor: Renderer");
 	m_rendererID = Renderer::createRendererID(this);
 }
 
 Renderer::~Renderer() {
 	removeRendererID(rendererID());
-	log(LC_Debug, "Destructor: Renderer");
+	log(LC_Debug, u"Destructor: Renderer");
 }
 
 std::uintptr_t Renderer::rendererID() const {

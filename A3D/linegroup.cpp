@@ -7,24 +7,24 @@ LineGroup::LineGroup(ResourceManager* resourceManager)
 	: Resource{ resourceManager },
 	  m_drawMode(Lines),
 	  m_thickness(1.f) {
-	log(LC_Debug, "Constructor: LineGroup");
+	log(LC_Debug, u"Constructor: LineGroup");
 }
 
 LineGroup::~LineGroup() {
-	log(LC_Debug, "Destructor: LineGroup (begin)");
+	log(LC_Debug, u"Destructor: LineGroup (begin)");
 	for(auto it = m_lineGroupCache.begin(); it != m_lineGroupCache.end(); ++it) {
 		if(it->second.isNull())
 			continue;
 
 		Renderer* r = Renderer::getRenderer(it->first);
 		if(!r) {
-			log(LC_Info, "LineGroup::~LineGroup: Potential memory leak? Renderer not available.");
+			log(LC_Info, u"LineGroup::~LineGroup: Potential memory leak? Renderer not available.");
 			continue;
 		}
 
 		r->Delete(it->second);
 	}
-	log(LC_Debug, "Destructor: LineGroup (end)");
+	log(LC_Debug, u"Destructor: LineGroup (end)");
 }
 
 LineGroup* LineGroup::clone() const {

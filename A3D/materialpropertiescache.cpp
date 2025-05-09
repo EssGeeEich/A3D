@@ -7,10 +7,10 @@ MaterialPropertiesCache::MaterialPropertiesCache(MaterialProperties* parent)
 	: QObject{ parent },
 	  m_materialProperties(parent),
 	  m_isDirty(true) {
-	log(LC_Debug, "Constructor: MaterialPropertiesCache");
+	log(LC_Debug, u"Constructor: MaterialPropertiesCache");
 }
 MaterialPropertiesCache::~MaterialPropertiesCache() {
-	log(LC_Debug, "Destructor: MaterialPropertiesCache");
+	log(LC_Debug, u"Destructor: MaterialPropertiesCache");
 }
 
 MaterialProperties* MaterialPropertiesCache::materialProperties() const {

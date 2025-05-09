@@ -13,11 +13,11 @@ LineGroupCacheOGL::LineGroupCacheOGL(LineGroup* parent)
 	  m_iboFormat(GL_UNSIGNED_INT),
 	  m_meshUBO(0),
 	  m_lineUBO(0) {
-	log(LC_Debug, "Constructor: LineGroupCacheOGL");
+	log(LC_Debug, u"Constructor: LineGroupCacheOGL");
 }
 
 LineGroupCacheOGL::~LineGroupCacheOGL() {
-	log(LC_Debug, "Destructor: LineGroupCacheOGL");
+	log(LC_Debug, u"Destructor: LineGroupCacheOGL");
 
 	if(m_meshUBO) {
 		QOpenGLContext::currentContext()->functions()->glDeleteBuffers(1, &m_meshUBO);
