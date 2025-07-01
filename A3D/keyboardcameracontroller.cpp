@@ -2,7 +2,7 @@
 #include "view.h"
 #include <QKeyEvent>
 #include <QFocusEvent>
-
+#include <set>
 namespace A3D {
 
 KeyboardCameraController::KeyboardCameraController(View* view)
@@ -16,19 +16,16 @@ KeyboardCameraController::KeyboardCameraController(View* view)
 		{Qt::Key_Z, ACT_MOVE_DOWNWARD},
 		  
 		{Qt::Key_Shift, ACT_MOVE_QUICK},
-		{Qt::Key_Control, ACT_MOVE_PRECISE},
-		  
-		{Qt::Key_Left, ACT_LOOK_LEFT},		  
-		{Qt::Key_Right, ACT_LOOK_RIGHT},		  
-		{Qt::Key_Up, ACT_LOOK_UP},		  
-		{Qt::Key_Down, ACT_LOOK_DOWN},
+        {Qt::Key_Control, ACT_MOVE_PRECISE},
 		  
 		{Qt::Key_H, ACT_LOOK_HOME}
 	  },
 	  m_movementBaseSpeed(1.f, 1.f, 1.f),
 	  m_movementPreciseFactor(0.2f),
 	  m_movementQuickFactor(5.f),
-	  m_rotationBaseSpeed(60.f, 60.f, 60.f)
+      m_rotationBaseSpeed(60.f,60.f,60.f),
+      m_rotationRevolutionSpeed(1.f,1.f,1.f),
+      m_rotationAngle(45.f,45.f)
 {
 	std::memset(m_actions, 0, sizeof(m_actions));
 }
@@ -57,6 +54,14 @@ void KeyboardCameraController::setBaseMovementSpeed(QVector3D speed) {
 
 void KeyboardCameraController::setBaseRotationSpeed(QVector3D speed) {
 	m_rotationBaseSpeed = speed;
+}
+
+void KeyboardCameraController::setRevolutionRotationSpeed(QVector3D speed) {
+    m_rotationRevolutionSpeed = speed;
+}
+
+void KeyboardCameraController::setHomePosition(QVector3D position) {
+    m_homePosition = position;
 }
 
 bool KeyboardCameraController::update(std::chrono::milliseconds deltaT) {
@@ -101,7 +106,19 @@ bool KeyboardCameraController::update(std::chrono::milliseconds deltaT) {
 	if(m_actions[ACT_LOOK_TILTRIGHT])
 		rotation.setZ(rotation.z() + 1.f);
 
-	movement *= m_movementBaseSpeed;
+    if(m_actions[ACT_ROTATE_DOWNWARD_AROUND_HOME])
+        rotateAroundHome(ACT_ROTATE_DOWNWARD_AROUND_HOME);
+
+    if(m_actions[ACT_ROTATE_UPWARD_AROUND_HOME])
+        rotateAroundHome(ACT_ROTATE_UPWARD_AROUND_HOME);
+
+    if(m_actions[ACT_ROTATE_RIGHT_AROUND_HOME])
+        rotateAroundHome(ACT_ROTATE_RIGHT_AROUND_HOME);
+
+    if(m_actions[ACT_ROTATE_LEFT_AROUND_HOME])
+        rotateAroundHome(ACT_ROTATE_LEFT_AROUND_HOME);
+
+    movement *= m_movementBaseSpeed;
 	rotation *= m_rotationBaseSpeed;
 
 	if(movement.isNull() && rotation.isNull())
@@ -141,6 +158,53 @@ bool KeyboardCameraController::eventFilter(QObject* o, QEvent* e) {
 	}
 
 	return QObject::eventFilter(o, e);
+}
+
+std::map<KeyboardCameraController::Action, Qt::Key> KeyboardCameraController::getKeyBindings() {
+    std::map<KeyboardCameraController::Action, Qt::Key> temp;
+    temp.clear();
+    for(const auto& [key, action]: m_keyBindings)
+        temp[action] = key;
+    return temp;
+}
+
+void KeyboardCameraController::rotateAroundHome(Action ac) {
+    if(!view())
+        return;
+
+    QVector2D pointer;
+    Camera& camera = view()->camera();
+    switch(ac) {
+    case ACT_ROTATE_LEFT_AROUND_HOME:
+        pointer = QVector2D(1.f, 0.f);
+        break;
+    case ACT_ROTATE_RIGHT_AROUND_HOME:
+        pointer = QVector2D(-1.f, 0.f);
+        break;
+    case ACT_ROTATE_UPWARD_AROUND_HOME:
+        pointer = QVector2D(0.f, 1.f);
+        break;
+    case ACT_ROTATE_DOWNWARD_AROUND_HOME:
+        pointer = QVector2D(0.f, -1.f);
+        break;
+    default:
+        return;
+    }
+
+    m_rotationAngle += pointer * QVector2D(m_rotationRevolutionSpeed.x(), m_rotationRevolutionSpeed.y());
+
+    float sinX = sin((m_rotationAngle.x() / 360.f) * M_PI * 2);
+    float sinY = sin((m_rotationAngle.y() / 360.f) * M_PI * 2);
+    float cosX = cos((m_rotationAngle.x() / 360.f) * M_PI * 2);
+    float cosY = cos((m_rotationAngle.y() / 360.f) * M_PI * 2);
+
+    QVector3D newPosition = QVector3D(cosY * cosX, sinY, cosY * sinX);
+    newPosition.normalize();
+    newPosition *= camera.position().distanceToPoint(m_homePosition);
+    newPosition += m_homePosition;
+
+    camera.setPosition(newPosition);
+    camera.setOrientationTarget(m_homePosition);
 }
 
 void KeyboardCameraController::updateActions() {

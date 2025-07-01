@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ChartAxisSettings</class>
+ <widget class="QWidget" name="ChartAxisSettings">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>836</width>
+    <height>331</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="chartTypeLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Chart type:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="linearInterpolatedRadioButton">
+       <property name="text">
+        <string>Linear Interpolated</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="enumeratedRadioButton">
+       <property name="text">
+        <string>Enumerated</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QWidget" name="formWidget" native="true">
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="nameLabel">
+        <property name="text">
+         <string>Name:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="nameLineEdit"/>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QCheckBox" name="invertedCheckbox">
+        <property name="text">
+         <string>Inverted</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="ChartAxisGeneralSettings" name="chartAxisGeneralSettings" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="LinearIndicatorsSettingsWidget" name="LinearPreviewWidget" native="true"/>
+   </item>
+   <item>
+    <widget class="StyledEnumeratedIndicatorsPreviewWidget" name="EnumeratedPreviewWidget" native="true"/>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ChartAxisGeneralSettings</class>
+   <extends>QWidget</extends>
+   <header>chartaxisgeneralsettings.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>LinearIndicatorsSettingsWidget</class>
+   <extends>QWidget</extends>
+   <header>linearindicatorssettingswidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StyledEnumeratedIndicatorsPreviewWidget</class>
+   <extends>QWidget</extends>
+   <header>styledenumeratedindicatorpreviewwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

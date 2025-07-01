@@ -36,6 +36,14 @@ void ChartAxisData::setDefaultIndicatorStyle(ChartAxisIndicatorStyle style) {
 	m_defaultStyle = std::move(style);
 }
 
+bool ChartAxisIndicatorStyle::operator==(ChartAxisIndicatorStyle const& obj) const {
+    return m_indicatorColor == obj.m_indicatorColor && m_labelColor == obj.m_labelColor && m_labelFont == obj.m_labelFont && m_labelSize == obj.m_labelSize;
+}
+
+bool ChartAxisIndicatorStyle::operator!=(ChartAxisIndicatorStyle const& obj) const {
+    return !(*this == obj);
+}
+
 ChartAxisIndicatorStyle ChartAxisData::defaultIndicatorStyle() const {
 	return m_defaultStyle;
 }
@@ -127,7 +135,7 @@ void ChartAxisData::addEquidistantIndicatorsByStepSize(float from, float to, flo
 
 	size_t const indicatorCount = static_cast<size_t>((to - from) / stepSize);
 
-	if(indicatorCount > 1000) // Too many, limit to 1000 points...
+    if(indicatorCount > MaxIndicators) // Too many, limit to 1000 points...
 	{
 		addEquidistantIndicatorsByIndicatorCount(from, to, 1000, toStringPrecision, indicatorType);
 		return;
@@ -217,6 +225,10 @@ void ChartAxisData::invert() {
 	}
 }
 
+bool ChartAxisData::isInverted() const {
+    return m_axisMinimumValue > m_axisMaximumValue;
+}
+
 ChartAxisType ChartAxisData::type() const {
 	return m_type;
 }
@@ -246,14 +258,24 @@ void ChartAxisData::normalizeIndicatorValues() {
 
 MapChart3D::MapChart3D()
 	: m_isValid(false),
-	  m_revision(0) {}
+      m_surfaceRevision(0),
+      m_indicatorRevision(0),
+      m_labelsRevision(0) {}
 
 bool MapChart3D::isValid() const {
 	return m_isValid;
 }
 
-int MapChart3D::revision() const {
-	return m_revision;
+size_t MapChart3D::surfaceRevision() const {
+    return m_surfaceRevision;
+}
+
+size_t MapChart3D::indicatorsRevision() const {
+    return m_indicatorRevision;
+}
+
+size_t MapChart3D::labelsRevision() const {
+    return m_labelsRevision;
 }
 
 void MapChart3D::setAxisData(Axis3D axis, ChartAxisData data) {
@@ -261,7 +283,9 @@ void MapChart3D::setAxisData(Axis3D axis, ChartAxisData data) {
 		return;
 	m_axes[axis] = std::move(data);
 	normalizeAxisPoints(axis);
-	++m_revision;
+    ++m_surfaceRevision;
+    ++m_indicatorRevision;
+    ++m_labelsRevision;
 }
 
 void MapChart3D::offsetY(std::vector<Chart3DSearchResult>& points, float offset, ClampType clamp) {
@@ -306,7 +330,7 @@ void MapChart3D::offsetY(std::vector<Chart3DSearchResult>& points, float offset,
 		float& val = m_normalized_values[AXIS_Y][it->m_index];
 		val        = (newValue - fZeroOffset) * fInvDelta;
 	}
-	++m_revision;
+    ++m_surfaceRevision;
 }
 
 ChartAxisData const& MapChart3D::axisData(Axis3D axis) const {
@@ -330,7 +354,7 @@ void MapChart3D::setChartPoints(std::vector<float> x_input_positions, std::vecto
 	normalizeAxisPoints(AXIS_Z);
 
 	m_isValid = true;
-	++m_revision;
+    ++m_surfaceRevision;
 }
 
 std::vector<float> const& MapChart3D::valuesForAxis(Axis3D axis) const {

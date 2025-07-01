@@ -20,6 +20,10 @@ public:
 
 	SurfaceChartEntity(Entity* parent = nullptr);
 
+	// Store the name in this class in case it will be displayed one day
+	void setName(QString);
+	QString name() const;
+
 	void setChart(MapChart3D map);
 	MapChart3D const& mapChart() const;
 	MapChart3D& mapChart();
@@ -75,12 +79,15 @@ private:
 	QPointer<LineGroup> m_indicatorLines[AXIS_COUNT][CHAXIND_COUNT];
 	std::vector<QPointer<TextBillboardEntity>> m_indicatorLabels[AXIS_COUNT];
 
-	int m_chartSyncRevision;
+    size_t m_chartSurfaceSyncRevision;
+    size_t m_chartIndicatorsSyncRevision;
+    size_t m_chartLabelsSyncRevision;
 	bool m_hasMarker;
 	QColor m_markerColor;
 	QVector2D m_marker;
 	LineGroup* m_markerLineGroup;
 	std::uint32_t m_editFilterMask;
+	QString m_name;
 };
 
 }

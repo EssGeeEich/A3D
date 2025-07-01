@@ -8,7 +8,7 @@
 #include "common.h"
 #include "viewcontroller.h"
 #include <QObject>
-#include <set>
+
 
 namespace A3D {
 
@@ -36,6 +36,11 @@ public:
 		ACT_LOOK_DOWN,      ///< Rotate the camera to look down
 		ACT_LOOK_TILTLEFT,  ///< Tilt the camera left
 		ACT_LOOK_TILTRIGHT, ///< Tilt the camera right
+
+        ACT_ROTATE_LEFT_AROUND_HOME,     ///< Rotate left around home position
+        ACT_ROTATE_RIGHT_AROUND_HOME,    ///< Rotate right around home position
+        ACT_ROTATE_UPWARD_AROUND_HOME,   ///< Rotate upward around home position
+        ACT_ROTATE_DOWNWARD_AROUND_HOME, ///< Rotate downward around home position
 
 		ACT_LOOK_HOME, ///< Reset camera to home position
 
@@ -71,9 +76,13 @@ public:
 	/// @param[in] speed Base rotation speed around each axis.
 	void setBaseRotationSpeed(QVector3D speed = QVector3D(1.f, 1.f, 1.f));
 
+    /// @brief Sets the base rotation speed vector.
+    /// @param[in] speed Base rotation speed around each axis.
+    void setRevolutionRotationSpeed(QVector3D speed = QVector3D(1.f, 1.f, 1.f));
+
 	/// @brief Sets the camera's home position.
 	/// @param[in] position World-space position to return to on "home" action.
-	void setHomePosition(QVector3D position);
+    void setHomePosition(QVector3D position);
 
 	/// @brief Updates controller state and applies camera motion.
 	/// @param[in] deltaT Time elapsed since last update in milliseconds.
@@ -85,6 +94,12 @@ public:
 	/// @param[in] event The event to process.
 	/// @return true if event was handled; false otherwise.
 	virtual bool eventFilter(QObject* obj, QEvent* event) override;
+
+    /// @brief Rotate the camera while looking at home position
+    /// @param[in] used to decide in which direction to rotate
+    void rotateAroundHome(Action);
+
+    std::map<Action, Qt::Key> getKeyBindings();
 
 private:
 	/// @brief Evaluates current key statuses to update action flags.
@@ -98,8 +113,11 @@ private:
 	float m_movementPreciseFactor; ///< Precise movement multiplier
 	float m_movementQuickFactor;   ///< Quick movement multiplier
 
-	QVector3D m_rotationBaseSpeed; ///< Base speed for rotations
-	QVector3D m_homePosition;      ///< Home position for camera reset
+    QVector3D m_rotationBaseSpeed;       ///< Base speed for rotations
+    QVector3D m_rotationRevolutionSpeed; ///< Revolution speed for rotations around home position
+    QVector3D m_homePosition;            ///< Home position for camera reset
+
+    QVector2D m_rotationAngle;
 };
 
 }

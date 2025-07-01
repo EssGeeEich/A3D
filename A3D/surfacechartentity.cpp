@@ -45,12 +45,24 @@ SurfaceChartEntity::SurfaceChartEntity(Entity* parent)
 	}
 }
 
+void SurfaceChartEntity::setName(QString name)
+{
+	m_name = name;
+}
+
+QString SurfaceChartEntity::name() const
+{
+	return m_name;
+}
+
 void SurfaceChartEntity::setChart(MapChart3D map) {
 	m_mapChart = std::move(map);
 	updateSurfaceMesh();
 	updateIndicatorLines();
 	updateIndicatorLabels();
-	m_chartSyncRevision = m_mapChart.revision();
+    m_chartSurfaceSyncRevision    = m_mapChart.surfaceRevision();
+    m_chartIndicatorsSyncRevision = m_mapChart.indicatorsRevision();
+    m_chartLabelsSyncRevision     = m_mapChart.labelsRevision();
 }
 
 MapChart3D const& SurfaceChartEntity::mapChart() const {
@@ -595,10 +607,20 @@ QColor SurfaceChartEntity::markerColor() const {
 }
 
 bool SurfaceChartEntity::updateEntity(std::chrono::milliseconds deltaMs) {
-	if(m_chartSyncRevision != m_mapChart.revision()) {
+    if(m_chartSurfaceSyncRevision != m_mapChart.surfaceRevision()) {
 		updateSurfaceMesh();
-		m_chartSyncRevision = m_mapChart.revision();
+        m_chartSurfaceSyncRevision = m_mapChart.surfaceRevision();
 	}
+
+    if(m_chartIndicatorsSyncRevision != m_mapChart.indicatorsRevision()) {
+        updateIndicatorLines();
+        m_chartIndicatorsSyncRevision = m_mapChart.indicatorsRevision();
+    }
+
+    if(m_chartLabelsSyncRevision != m_mapChart.labelsRevision()) {
+        updateIndicatorLabels();
+        m_chartLabelsSyncRevision = m_mapChart.labelsRevision();
+    }
 
 	return Entity::updateEntity(deltaMs);
 }

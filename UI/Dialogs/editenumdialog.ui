@@ -1,23 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SettingsDialog</class>
- <widget class="QDialog" name="SettingsDialog">
+ <class>EditEnumDialog</class>
+ <widget class="QDialog" name="EditEnumDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>557</width>
-    <height>405</height>
+    <width>634</width>
+    <height>378</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <widget class="ChartAxisSettings" name="widget" native="true"/>
+  <layout class="QFormLayout" name="formLayout_2">
+   <item row="0" column="0" colspan="2">
+    <widget class="ChartIndicatorTypeWidget" name="indicatorTypeWidget" native="true"/>
    </item>
-   <item>
+   <item row="1" column="0" colspan="2">
+    <widget class="ChartAxisGeneralSettings" name="generalSettingsWidget" native="true"/>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Indicator name:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLineEdit" name="lineEdit"/>
+   </item>
+   <item row="3" column="0" colspan="2">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Orientation::Vertical</enum>
@@ -30,7 +43,7 @@
      </property>
     </spacer>
    </item>
-   <item>
+   <item row="4" column="0">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Orientation::Horizontal</enum>
@@ -44,9 +57,15 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ChartAxisSettings</class>
+   <class>ChartAxisGeneralSettings</class>
    <extends>QWidget</extends>
-   <header>chartaxissettings.h</header>
+   <header>chartaxisgeneralsettings.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ChartIndicatorTypeWidget</class>
+   <extends>QWidget</extends>
+   <header>chartindicatortypewidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
@@ -55,7 +74,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>SettingsDialog</receiver>
+   <receiver>EditEnumDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -71,7 +90,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>SettingsDialog</receiver>
+   <receiver>EditEnumDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

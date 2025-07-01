@@ -11,7 +11,13 @@
 			".frag",
 			".vert",
 			".geom"
-		]
+		],
+		"files.associations": {
+			"*.py": "python",
+			"qcolordialog": "cpp",
+			"qfontdialog": "cpp",
+			"qvboxlayout": "cpp"
+		}
 	},
 	"extensions": {
 		"recommendations": [

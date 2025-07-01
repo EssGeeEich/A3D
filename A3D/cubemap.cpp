@@ -31,6 +31,16 @@ Cubemap* Cubemap::clone() const {
 	return newCubemap;
 }
 
+void Cubemap::setCubemapFace(CubemapFace face, QColor const& color) {
+    // Create a 1x1 image with Format_ARGB32 (32-bit with alpha)
+    QImage image(1, 1, QImage::Format_ARGB32);
+
+    // Set the pixel to the desired color
+    image.setPixelColor(0, 0, color);
+
+    setCubemapFace(face, Image(image));
+}
+
 void Cubemap::setCubemapFace(CubemapFace face, Image const& image) {
 	if(face >= CF_COUNT)
 		return;

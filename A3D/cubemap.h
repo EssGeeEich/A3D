@@ -44,6 +44,11 @@ public:
 	/// @param[in] image The image to set on the specified face.
 	void setCubemapFace(CubemapFace face, Image const& image);
 
+    /// @brief Sets the color for a specific face of the cube map.
+    /// @param[in] face The face of the cube to set.
+    /// @param[in] color This will generate a small colored image on the specidied face.
+    void setCubemapFace(CubemapFace face, QColor const& color);
+
 	/// @brief Gets the image of a specific face of the cube map.
 	/// @param[in] face The face to retrieve.
 	/// @return The image assigned to the specified face.

@@ -9,6 +9,8 @@
 
 namespace A3D {
 
+uint16_t const MaxIndicators = 100;
+
 /// @brief Types of axis scaling modes.
 /// @details Determines how axis values are interpreted and rendered.
 enum ChartAxisType {
@@ -37,6 +39,8 @@ struct ChartAxisIndicatorStyle {
 	ChartAxisIndicatorStyle(ChartAxisIndicatorStyle&&)                 = default;
 	ChartAxisIndicatorStyle& operator=(ChartAxisIndicatorStyle const&) = default;
 	ChartAxisIndicatorStyle& operator=(ChartAxisIndicatorStyle&&)      = default;
+    bool operator==(ChartAxisIndicatorStyle const&) const;
+    bool operator!=(ChartAxisIndicatorStyle const&) const;
 
 	QColor m_indicatorColor; ///< Color of the indicator marker.
 	QColor m_labelColor;     ///< Color of the indicator label text.
@@ -65,7 +69,7 @@ struct ChartAxisIndicator {
 	ChartAxisIndicatorType m_type;   ///< Type of this indicator (major or minor).
 	float m_value;                   ///< Value of the indicator on the axis.
 	float m_normalizedValue;         ///< Normalized position along the axis [0,1].
-	QString m_label;                 ///< Label text for the indicator.
+    QString m_label;                 ///< Label text for the indicator.
 	ChartAxisIndicatorStyle m_style; ///< Style applied to this indicator.
 };
 
@@ -197,6 +201,8 @@ public:
 	/// @brief Invert the axis direction.
 	void invert();
 
+    bool isInverted() const;
+
 	/// @brief Get the current axis type.
 	/// @return The axis type.
 	ChartAxisType type() const;
@@ -271,12 +277,26 @@ public:
 	/// @return True if valid data is set, false otherwise.
 	bool isValid() const;
 
-	/// @brief Returns the revision ID of this chart.
+    /// @brief Returns the revision ID of the mesh.
 	///
 	/// The revision ID is automatically increased when the map is changed.
 	/// By looking at the revision ID, an Entity can tell if it needs to be refreshed.
 	/// @return The revision ID of this chart.
-	int revision() const;
+    size_t surfaceRevision() const;
+
+    /// @brief Returns the revision ID of this indicators.
+    ///
+    /// The revision ID is automatically increased when the map is changed.
+    /// By looking at the revision ID, an Entity can tell if it needs to be refreshed.
+    /// @return The revision ID of this chart.
+    size_t indicatorsRevision() const;
+
+    /// @brief Returns the revision ID of this labels.
+    ///
+    /// The revision ID is automatically increased when the map is changed.
+    /// By looking at the revision ID, an Entity can tell if it needs to be refreshed.
+    /// @return The revision ID of this chart.
+    size_t labelsRevision() const;
 
 	/// @brief Set axis metadata and indicators.
 	/// @param[in] axis Identifier for the 3D axis.
@@ -372,7 +392,9 @@ private:
 	ChartAxisData m_axes[AXIS_COUNT];                   ///< Axis data for each dimension.
 	std::vector<float> m_values[AXIS_COUNT];            ///< Raw input values per axis.
 	std::vector<float> m_normalized_values[AXIS_COUNT]; ///< Normalized values per axis.
-	int m_revision;                                     ///< Current map revision index.
+    size_t m_surfaceRevision;                           ///< Current map revision index.
+    size_t m_indicatorRevision;
+    size_t m_labelsRevision;
 };
 
 }
